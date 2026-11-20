@@ -11,8 +11,9 @@ def test_playlist_id():
 
 
 def test_parse_embed():
-    entity = {"trackList": [{"title": "A/B", "subtitle": "X,\xa0Y", "duration": 1500}]}
+    entity = {"trackList": [{"title": "A/B", "subtitle": "X,\xa0Y", "duration": 1500,
+                             "uri": "spotify:track:abc"}]}
     data = {"props": {"pageProps": {"state": {"data": {"entity": entity}}}}}
     html = f'<script id="__NEXT_DATA__" type="application/json">{json.dumps(data)}</script>'
     [t] = parse_embed(html)
-    assert (t.artist, t.duration, t.filename) == ("X", 1.5, "X - A_B.wav")
+    assert (t.artist, t.duration, t.filename, t.track_id) == ("X", 1.5, "X - A_B.wav", "abc")

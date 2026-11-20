@@ -7,5 +7,6 @@ uv run playlist-splitter input/spotify_playlist.wav "https://open.spotify.com/pl
 ```
 
 - Track names and durations come from the Spotify playlist link.
+- Album covers (640px JPEG) are saved next to each WAV; skip with `--no-covers`.
 - Each cut is placed at the quietest point within `--window` seconds of the expected boundary.
 - Record without crossfade/gapless playback for clean cuts.

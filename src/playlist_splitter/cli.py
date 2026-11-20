@@ -5,6 +5,7 @@ from pathlib import Path
 
 from playlist_splitter.analysis import compute_envelope
 from playlist_splitter.boundaries import find_cuts
+from playlist_splitter.covers import download_cover
 from playlist_splitter.spotify import fetch_tracks
 from playlist_splitter.wavfile import read_info, write_slice
 
@@ -24,6 +25,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--threshold", type=float, default=-60.0,
                    help="silence threshold in dBFS for lead-in/out (default -60)")
     p.add_argument("--dry-run", action="store_true", help="only print the cuts")
+    p.add_argument("--no-covers", action="store_true", help="skip album cover download")
     return p.parse_args(argv)
 
 
@@ -45,3 +47,8 @@ def main(argv: list[str] | None = None) -> None:
             write_slice(info, round(a.seconds * info.sample_rate),
                         round(b.seconds * info.sample_rate),
                         args.output / track.filename)
+            if not args.no_covers and track.track_id:
+                try:
+                    download_cover(track.track_id, args.output / f"{track.stem}.jpg")
+                except OSError as e:
+                    print(f"    cover download failed: {e}")

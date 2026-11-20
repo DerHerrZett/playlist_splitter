@@ -15,13 +15,17 @@ class Track:
     title: str
     artist: str  # main artist
     duration: float  # seconds
+    track_id: str = ""
+
+    @property
+    def stem(self) -> str:
+        """Safe file name stem 'Artist - Title'."""
+        name = f"{self.artist} - {self.title}"
+        return re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", name).strip(" .")
 
     @property
     def filename(self) -> str:
-        """Safe file name 'Artist - Title.wav'."""
-        name = f"{self.artist} - {self.title}"
-        name = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", name).strip(" .")
-        return f"{name}.wav"
+        return f"{self.stem}.wav"
 
 
 def playlist_id(link: str) -> str:
@@ -42,6 +46,7 @@ def parse_embed(html: str) -> list[Track]:
             title=t["title"].strip(),
             artist=t["subtitle"].split(ARTIST_SEPARATOR)[0].strip(),
             duration=t["duration"] / 1000,
+            track_id=t.get("uri", "").rsplit(":", 1)[-1],
         )
         for t in entity["trackList"]
     ]
