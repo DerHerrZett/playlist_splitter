@@ -1,0 +1,24 @@
+[project]
+name = "spotify-playlist-splitter"
+version = "0.1.0"
+description = "Split a WAV playlist recording into songs, without re-encoding."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.5.5",
+]
+
+[project.scripts]
+playlist-splitter = "playlist_splitter.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.8.6,<0.9"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
+
+[tool.uv.build-backend]
+module-name = "playlist_splitter"
