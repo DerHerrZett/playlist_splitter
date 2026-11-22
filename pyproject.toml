@@ -10,6 +10,7 @@ dependencies = [
 
 [project.scripts]
 playlist-splitter = "playlist_splitter.cli:main"
+playlist-recorder = "playlist_splitter.record_cli:main"
 
 [build-system]
 requires = ["uv_build>=0.8.6,<0.9"]

@@ -59,3 +59,20 @@ def compute_envelope(info: WavInfo) -> Envelope:
             print(f"\rAnalysing audio: {1 - remaining / info.data_size:6.1%}", end="")
     print()
     return Envelope(np.concatenate(levels), hop, info.sample_rate)
+
+
+def first_sound_frame(info: WavInfo, threshold_db: float, chunk_seconds: float = 1.0,
+                      from_frame: int = 0) -> int:
+    """Index of the first frame >= from_frame whose peak exceeds threshold_db."""
+    threshold = 10 ** (threshold_db / 20)
+    chunk_frames = int(info.sample_rate * chunk_seconds)
+    with open(info.path, "rb") as f:
+        f.seek(info.data_offset + from_frame * info.block_align)
+        for start in range(from_frame, info.n_frames, chunk_frames):
+            n = min(chunk_frames, info.n_frames - start)
+            peak = np.abs(decode_pcm(f.read(n * info.block_align), info.bits,
+                                     info.channels)).max(axis=1)
+            loud = np.flatnonzero(peak > threshold)
+            if loud.size:
+                return start + int(loud[0])
+    raise ValueError(f"No sound above {threshold_db} dBFS in {info.path}")
