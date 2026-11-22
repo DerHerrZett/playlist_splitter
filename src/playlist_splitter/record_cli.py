@@ -38,6 +38,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--threshold", type=float, default=-100.0,
                    help="dBFS above which the song is considered started (default -100)")
     p.add_argument("--limit", type=int, help="record at most this many songs")
+    p.add_argument("--verify", action="store_true",
+                   help="record each song until two takes are bit-identical (max 3)")
     return p.parse_args(argv)
 
 
@@ -66,13 +68,17 @@ def main(argv: list[str] | None = None) -> None:
         raise SystemExit("Reaper must be stopped.")
     device = player.device_id(args.device)
     wait_until_paused(player)
+    player.prepare(device)
 
     for n, (pos, track) in enumerate(todo, 1):
         out = library.song_path(track)
         print(f"[{n}/{len(todo)}] #{pos} {out.relative_to(args.output)} "
               f"({int(track.duration // 60)}:{int(track.duration % 60):02d})")
         out.parent.mkdir(parents=True, exist_ok=True)
-        extra = record_track(track, out, daw, player, device, args.record_dir, args.threshold)
+        extra = record_track(track, out, args.verify, reaper=daw, player=player, device=device,
+                             record_dir=args.record_dir, threshold_db=args.threshold)
+        if extra is None:
+            continue
         if not args.no_covers:
             library.save_cover(track)
         library.add(track, pos, **extra)

@@ -28,5 +28,7 @@ uv run playlist-recorder "https://open.spotify.com/playlist/<id>" [output] [--mo
 - Needs Reaper running (web interface on port 8080), Spotify Premium with the desktop app open,
   and a Spotify developer app (redirect URI `http://127.0.0.1:8888/callback`); pass its client ID
   once via `--client-id` or `PLAYLIST_CLIENT_ID`.
-- Spotify: loudness normalization off, volume 100 %. Don't switch Reaper tabs during a run.
+- Spotify: loudness normalization off, volume 100 %. For best results, download the playlist
+  in Spotify first (quality "Very high"): streaming can cause short dropouts. Don't switch Reaper tabs during a run.
+- `--verify`: record each song until two takes are bit-identical (max 3; off by default).
 - Only songs missing from the metadata file (or, in album mode, from the album folder) are recorded.

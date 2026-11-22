@@ -141,12 +141,15 @@ class Player:
             raise SystemExit(f"Choose a Spotify device with --device. Available: {names}")
         return match[0]["id"]
 
-    def play_track(self, track_id: str, device: str) -> None:
-        q = f"?device_id={device}"
-        self._request("PUT", "/me/player/play" + q,
-                      {"uris": [f"spotify:track:{track_id}"], "position_ms": 0})
+    def prepare(self, device: str) -> None:
+        """Shuffle and repeat off. Only call while not playing: changing them
+        during playback makes the client skip a few milliseconds of audio."""
         self._request("PUT", f"/me/player/shuffle?state=false&device_id={device}")
         self._request("PUT", f"/me/player/repeat?state=off&device_id={device}")
+
+    def play_track(self, track_id: str, device: str) -> None:
+        self._request("PUT", f"/me/player/play?device_id={device}",
+                      {"uris": [f"spotify:track:{track_id}"], "position_ms": 0})
 
     def pause(self) -> None:
         try:

@@ -37,3 +37,4 @@ def first_sound_frame(info: WavInfo, threshold_db: float, chunk_seconds: float =
             if loud.size:
                 return start + int(loud[0])
     raise ValueError(f"No sound above {threshold_db} dBFS in {info.path}")
+
