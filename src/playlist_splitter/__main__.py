@@ -1,3 +1,3 @@
-from playlist_splitter.cli import main
+from playlist_splitter.record_cli import main
 
 main()

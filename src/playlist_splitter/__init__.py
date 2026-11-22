@@ -1,1 +1,1 @@
-"""Split a WAV playlist recording into songs."""
+"""Record a playlist song by song via Reaper."""

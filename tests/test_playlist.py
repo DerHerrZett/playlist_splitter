@@ -1,6 +1,6 @@
 import json
 
-from playlist_splitter.spotify import parse_embed, playlist_id
+from playlist_splitter.playlist import parse_embed, playlist_id
 
 PID = "62vu4Mn0HlwBJAyokriK4B"
 

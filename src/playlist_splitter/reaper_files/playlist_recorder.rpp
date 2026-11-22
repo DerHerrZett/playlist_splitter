@@ -1,0 +1,12 @@
+<REAPER_PROJECT 0.1 "6.83" 0
+  RECORD_PATH "{record_path}" ""
+  <RECORD_CFG
+    ZXZhdxgAAQ==
+  >
+  <TRACK
+    NAME "{track_name}"
+    REC 1 {rec_input} 0 0 0 0 0 0
+    NCHAN 2
+    MAINSEND 0 0
+  >
+>

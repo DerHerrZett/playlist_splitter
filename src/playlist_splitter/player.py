@@ -13,13 +13,15 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
+from playlist_splitter.playlist import Album
+
 API = "https://api.spotify.com/v1"
 AUTH_URL = "https://accounts.spotify.com/authorize"
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 REDIRECT_PORT = 8888
 REDIRECT_URI = f"http://127.0.0.1:{REDIRECT_PORT}/callback"
 SCOPES = "user-read-playback-state user-modify-playback-state"
-TOKEN_FILE = Path.home() / ".cache" / "playlist_splitter" / "spotify_token.json"
+TOKEN_FILE = Path.home() / ".cache" / "playlist_splitter" / "token.json"
 
 
 @dataclass(frozen=True)
@@ -78,13 +80,14 @@ def login(client_id: str) -> dict:
     return token
 
 
-class SpotifyPlayer:
+class Player:
     def __init__(self, client_id: str | None = None, token_file: Path = TOKEN_FILE):
         self.token_file = token_file
+        self._album_discs: dict[str, int] = {}  # album id -> number of discs
         saved = json.loads(token_file.read_text()) if token_file.exists() else {}
         self.client_id = client_id or saved.get("client_id")
         if not self.client_id:
-            raise SystemExit("Spotify client ID needed (--client-id or SPOTIFY_CLIENT_ID).")
+            raise SystemExit("Spotify client ID needed (--client-id or PLAYLIST_CLIENT_ID).")
         if saved.get("client_id") == self.client_id and "refresh_token" in saved:
             self.token = saved
         else:
@@ -157,3 +160,16 @@ class SpotifyPlayer:
         track_id = (item.get("linked_from") or {}).get("id") or item.get("id")
         return PlaybackState(bool(s.get("is_playing")), track_id,
                              (s.get("progress_ms") or 0) / 1000)
+
+    def album(self, track_id: str) -> Album:
+        """Album info of a track (single-track endpoint; batch is not allowed)."""
+        t = self._request("GET", f"/tracks/{track_id}")
+        a = t["album"]
+        discs = self._album_discs
+        if a["id"] not in discs:
+            total = a.get("total_tracks") or 1
+            last = self._request("GET", f"/albums/{a['id']}/tracks?limit=1&offset={total - 1}")
+            discs[a["id"]] = max([i["disc_number"] for i in last["items"]] or [1])
+        return Album(a["name"], a["artists"][0]["name"], (a.get("release_date") or "")[:4],
+                     t["track_number"], t["disc_number"],
+                     discs[a["id"]] > 1 or t["disc_number"] > 1)

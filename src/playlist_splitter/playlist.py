@@ -41,6 +41,24 @@ def playlist_id(link: str) -> str:
 
 
 @dataclass(frozen=True)
+class Album:
+    name: str
+    artist: str  # main album artist
+    year: str
+    track_number: int
+    disc_number: int
+    multi_disc: bool
+
+    @property
+    def folder(self) -> str:
+        return safe_name(f"{self.artist} - {self.name}" + (f" ({self.year})" if self.year else ""))
+
+    def song_filename(self, track: Track) -> str:
+        disc = f"{self.disc_number}-" if self.multi_disc else ""
+        return f"{disc}{self.track_number:02d} - {track.stem}.wav"
+
+
+@dataclass(frozen=True)
 class Playlist:
     id: str
     name: str
@@ -73,7 +91,3 @@ def fetch_playlist(link: str) -> Playlist:
     with urllib.request.urlopen(req, timeout=30) as resp:
         html = resp.read().decode("utf-8")
     return Playlist(pid, _entity(html).get("name", ""), parse_embed(html))
-
-
-def fetch_tracks(link: str) -> list[Track]:
-    return fetch_playlist(link).tracks

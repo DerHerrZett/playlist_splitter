@@ -5,8 +5,8 @@ from pathlib import Path
 
 from playlist_splitter.analysis import first_sound_frame
 from playlist_splitter.reaper import Reaper, wait_for_new_wav
-from playlist_splitter.spotify import Track
-from playlist_splitter.spotify_player import SpotifyPlayer
+from playlist_splitter.playlist import Track
+from playlist_splitter.player import Player
 from playlist_splitter.wavfile import read_info, write_slice
 
 PREROLL = 1.0  # seconds recorded before playback starts
@@ -14,7 +14,7 @@ POSTROLL = 1.5  # seconds recorded after the reported end
 START_TIMEOUT = 20.0
 
 
-def _play_until_end(player: SpotifyPlayer, track: Track, device: str) -> None:
+def _play_until_end(player: Player, track: Track, device: str) -> None:
     player.play_track(track.track_id, device)
     deadline = time.monotonic() + START_TIMEOUT
     while not ((s := player.state()).is_playing and s.track_id == track.track_id):
@@ -35,7 +35,7 @@ def _play_until_end(player: SpotifyPlayer, track: Track, device: str) -> None:
         time.sleep(min(remaining - 3, 5))
 
 
-def wait_until_paused(player: SpotifyPlayer, timeout: float = 10.0) -> None:
+def wait_until_paused(player: Player, timeout: float = 10.0) -> None:
     player.pause()
     deadline = time.monotonic() + timeout
     while player.state().is_playing:
@@ -45,7 +45,7 @@ def wait_until_paused(player: SpotifyPlayer, timeout: float = 10.0) -> None:
     time.sleep(1.0)  # let the audio output drain
 
 
-def record_track(track: Track, out: Path, reaper: Reaper, player: SpotifyPlayer,
+def record_track(track: Track, out: Path, reaper: Reaper, player: Player,
                  device: str, record_dir: Path, threshold_db: float) -> dict:
     """Records track into out; returns extra manifest fields."""
     before = set(record_dir.glob("*.wav"))

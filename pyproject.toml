@@ -1,7 +1,7 @@
 [project]
-name = "spotify-playlist-splitter"
+name = "playlist-splitter"
 version = "0.1.0"
-description = "Split a WAV playlist recording into songs, without re-encoding."
+description = "Record a playlist song by song via Reaper, without re-encoding."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -9,8 +9,8 @@ dependencies = [
 ]
 
 [project.scripts]
-playlist-splitter = "playlist_splitter.cli:main"
 playlist-recorder = "playlist_splitter.record_cli:main"
+playlist-reaper-setup = "playlist_splitter.record_cli:setup_main"
 
 [build-system]
 requires = ["uv_build>=0.8.6,<0.9"]

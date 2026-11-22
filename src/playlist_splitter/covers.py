@@ -22,5 +22,5 @@ def cover_url(track_id: str) -> str:
     return thumb.replace(SIZE_300, SIZE_640)
 
 
-def download_cover(track_id: str, out: Path) -> None:
+def fetch_cover(track_id: str, out: Path) -> None:
     out.write_bytes(_get(cover_url(track_id)))
